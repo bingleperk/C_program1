@@ -1,0 +1,17 @@
+void minmax (float num[], float *min, float *max) //최소 최대 뜯어오기.
+{
+        for (int i=0; i<255; i++)
+    {
+        *min = (num[i]<*min) ? num[i] : *min;
+        *max = (num[i]>*max) ? num[i] : *max;
+        //삼항연산자
+        /*if(num[i ] < *min)
+        {
+            *min = num[i];
+        }
+        else if(num[i] > *max)
+        {
+            *max = num[i];
+        }*/
+    }
+}
