@@ -1,3 +1,27 @@
+#include <stdio.h>
+
+void minmax (float num[], float *min, float *max);
+
+
+int main()
+{
+    float num[255];
+    float min=num[0], max=num[0];
+
+    minmax(num, &min, &max);
+    
+
+    
+
+    return 0;
+}
+
+
+
+
+
+
+
 void minmax (float num[], float *min, float *max) //최소 최대 뜯어오기.
 {
         for (int i=0; i<255; i++)
