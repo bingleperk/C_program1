@@ -17,6 +17,7 @@ int main()
     float C[ROW_NUM][COL_NUM];
     
     float min=A[0][0], max=A[0][0]; //값 초기화
+    float error;
     
     minmax(A, &min, &max); //최대최소 얻기
 
@@ -41,7 +42,25 @@ int main()
 
 
 
-
+void err(float *error,float A[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM])
+{
+    float diff=0;
+    float diff_n=0;
+    float D;
+    for(int i=0; i<ROW_NUM; i++)
+    {
+        for(int j=0; j<COL_NUM; j++)
+        { 
+            D=A[i][j] - C[i][j];
+            diff = (D>diff) ? D : diff;
+            
+            diff_n = (D<diff_n) ? D : diff_n;
+        }
+    }
+    
+    *error = (diff > -diff_n) ? diff : -diff_n;
+    
+}
 
 
 
@@ -55,9 +74,6 @@ void q_C(char B[ROW_NUM][COL_NUM],float C[ROW_NUM][COL_NUM], float scale)
             C[i][j] = B[i][j] * scale;
         }
     }
-
-
-
 }
 
 
