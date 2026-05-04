@@ -1,19 +1,37 @@
 #include <stdio.h>
 #include "hw_2_input.h"
 
-void minmax (float A[64][64], float *min, float *max);
+
+void minmax (float A[ROW_NUM][COL_NUM], float *min, float *max);
+void get_scale(float *scale,float *max, float *min);
+void q_B(float A[ROW_NUM][COL_NUM], char B[ROW_NUM][COL_NUM], float *scale);
+void q_C(char B[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM], float scale);
+
+
+
 
 
 int main()
 {
-    float A[64][64]; //matrix A
+    char B[ROW_NUM][COL_NUM]={0};
+    float C[ROW_NUM][COL_NUM];
+    
     float min=A[0][0], max=A[0][0]; //값 초기화
-    minmax(A, &min, &max); //최댓값 
+    
+    minmax(A, &min, &max); //최대최소 얻기
 
     float scale;
-
+    get_scale(&scale, &max, &min); 
     
+    q_B(A, B, &scale);//B에 양자화 값 넣어줌
+    q_C(B, C, scale); //scale값 안바뀌니까 포인터 X
 
+
+
+    printf("min:\t%f\n",min);
+    printf("max:\t%f\n",max);
+    printf("scale:\t%f\n",scale);
+    //printf("|error|:\t%f",);
     return 0;
 }
 
@@ -21,12 +39,100 @@ int main()
 
 
 
-void minmax (float A[64][64], float *min, float *max) //최소 최대 뜯어오기.
+
+
+
+
+
+
+
+void q_C(char B[ROW_NUM][COL_NUM],float C[ROW_NUM][COL_NUM], float scale)
+{
+    for(int i=0; i<ROW_NUM; i++)
+    {
+        for(int j=0; j<COL_NUM; j++)
+        {
+            C[i][j] = B[i][j] * scale;
+        }
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+void q_B(float A[ROW_NUM][COL_NUM], char B[ROW_NUM][COL_NUM], float *scale) //배열 B에 양자화 값 각각 넣어주기
+{
+    int Q;//양자화 값
+    for(int i=0; i<ROW_NUM; i++)
+    {
+        for(int j=0; j<COL_NUM; j++)
+        {
+            //B[i][j] = round(A[i][j] / *scale);
+
+            if (A[i][j]<0)
+            {
+                Q = (A[i][j] / *scale) - 0.5;
+                B[i][j] = Q;
+            }
+            else
+            {
+                Q = (A[i][j] / *scale) + 0.5;
+                B[i][j] = Q;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+void get_scale(float *scale, float *max, float *min)
+{
+
+    float s_max;
+    if (*min<0)
+    {
+        if (-*min<*max)
+        {
+            s_max = *max;
+        }
+
+        else
+        {
+            s_max = - *min;
+        }
+    }
+    else //min>0--> min은 양수니까 무조건 max값의 절댓값이 더 큼
+    {
+            s_max = *max;
+    }
+
+    *scale = s_max/127; //scale얻음
+    
+} 
+
+
+
+void minmax (float A[ROW_NUM][COL_NUM], float *min, float *max) //최소 최대 뜯어오기.
 {
         int i, j;
-        for (i=0; i<64; i++)
+        for (i=0; i<ROW_NUM; i++)
         {
-            for(j=0; j<64; j++)
+            for(j=0; j<COL_NUM; j++)
             {
                 *min=(*min>A[i][j]) ? A [i][j] : *min;
                 *max=(*max<A[i][j]) ? A [i][j] : *max;
