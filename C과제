@@ -6,7 +6,7 @@ void minmax (float A[ROW_NUM][COL_NUM], float *min, float *max);
 void get_scale(float *scale,float *max, float *min);
 void q_B(float A[ROW_NUM][COL_NUM], char B[ROW_NUM][COL_NUM], float *scale);
 void q_C(char B[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM], float scale);
-
+void err(float *error,float A[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM], float *MSE);
 
 
 
@@ -18,7 +18,7 @@ int main()
     
     float min=A[0][0], max=A[0][0]; //값 초기화
     float error;
-    
+    float MSE=0;
     minmax(A, &min, &max); //최대최소 얻기
 
     float scale;
@@ -26,13 +26,15 @@ int main()
     
     q_B(A, B, &scale);//B에 양자화 값 넣어줌
     q_C(B, C, scale); //scale값 안바뀌니까 포인터 X
+    err(&error, A, C, &MSE);
 
 
 
     printf("min:\t%f\n",min);
     printf("max:\t%f\n",max);
     printf("scale:\t%f\n",scale);
-    //printf("|error|:\t%f",);
+    printf("|error|:%f\n",error);
+    printf("MSE:\t%f", MSE);
     return 0;
 }
 
@@ -40,13 +42,12 @@ int main()
 
 
 
-
-
-void err(float *error,float A[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM])
+void err(float *error,float A[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM], float *MSE)//최대 에러값이랑 MSE 같이 가져옴
 {
     float diff=0;
     float diff_n=0;
     float D;
+
     for(int i=0; i<ROW_NUM; i++)
     {
         for(int j=0; j<COL_NUM; j++)
@@ -55,11 +56,14 @@ void err(float *error,float A[ROW_NUM][COL_NUM], float C[ROW_NUM][COL_NUM])
             diff = (D>diff) ? D : diff;
             
             diff_n = (D<diff_n) ? D : diff_n;
+
+            *MSE += D*D;
         }
     }
     
     *error = (diff > -diff_n) ? diff : -diff_n;
-    
+    *MSE = *MSE / (COL_NUM* ROW_NUM);
+
 }
 
 
@@ -94,12 +98,12 @@ void q_B(float A[ROW_NUM][COL_NUM], char B[ROW_NUM][COL_NUM], float *scale) //�
 
             if (A[i][j]<0)
             {
-                Q = (A[i][j] / *scale) - 0.5;
+                Q = (A[i][j] / *scale) - 0.5f;
                 B[i][j] = Q;
             }
             else
             {
-                Q = (A[i][j] / *scale) + 0.5;
+                Q = (A[i][j] / *scale) + 0.5f;
                 B[i][j] = Q;
             }
         }
